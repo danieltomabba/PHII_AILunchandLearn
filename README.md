@@ -1,5 +1,6 @@
 # PHII_AILunchandLearn
 **Lunch & Learn: Deploying a Chat LLM System Using Python**
+![Image 10-22-24 at 1 04 PM](https://github.com/user-attachments/assets/47c896b1-289a-440d-ae61-73daa8aaec0c)
 
 **Overview**
 This learning guide will walk your colleagues—who have no prior experience in Python, AI, LLMs, or prompt engineering—through the step-by-step process of deploying a Chat LLM system. This is a hands-on experience designed to be playful and accessible, with every detail included for both macOS and Windows environments. The goal is for everyone to have a fully functional LLM system running on their computer by the end of the session.
