@@ -1,4 +1,4 @@
-# PHII_AILunchandLearn
+# Custom LLM ChatDoc System
 **Lunch & Learn: Deploying a Chat LLM System Using Python**
 ![Image 10-22-24 at 1 04 PM](https://github.com/user-attachments/assets/47c896b1-289a-440d-ae61-73daa8aaec0c)
 
