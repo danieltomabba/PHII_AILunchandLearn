@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags for Bootstrap and responsiveness -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Public Health Informatics Institute (PHII) Personalized Chatbot 1.0</title>
+
+    <!-- Bootstrap CSS via CDN -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Optional: Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+    <!-- Custom Styles -->
+    <style>
+        body {
+            padding-top: 80px;
+            background-color: #f8f9fa;
+        }
+        .footer {
+            padding: 20px 0;
+            text-align: center;
+            margin-top: 40px;
+            color: #6c757d;
+        }
+        .banner {
+            position: relative;
+            background-image: url("{{ url_for('static', filename='images/banner.jpg') }}");
+            background-size: cover;
+            background-position: center;
+            height: 300px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        .banner-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 123, 255, 0.5);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .banner-text {
+            color: white;
+            font-size: 2rem;
+            font-weight: bold;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary fixed-top shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand d-flex align-items-center" href="{{ url_for('homepage') }}">
+                <img src="{{ url_for('static', filename='images/logo.jpg') }}" alt="Logo" width="270" height="60" class="d-inline-block align-text-top me-2">
+                Public Health Informatics Institute (PHII) Personalized Chatbot 1.0
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}">
+                            <i class="bi bi-box-arrow-right"></i> Logout
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <div class="container">
+        <!-- Banner Image -->
+        <div class="banner">
+            <div class="banner-overlay">
+                <div class="banner-text">
+                    Welcome to Your Personalized PHII Chatbot 1.0
+                </div>
+            </div>
+        </div>
+
+        <!-- Flash Messages -->
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+            <div class="row">
+                <div class="col-12">
+                    {% for message in messages %}
+                        <div class="alert alert-info alert-dismissible fade show" role="alert">
+                            {{ message }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% endif %}
+        {% endwith %}
+
+        <!-- Upload Form -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <i class="bi bi-upload"></i> Upload a New Document
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" class="row g-3">
+                            <div class="col-md-8">
+                                <input class="form-control" type="file" name="file" accept=".txt,.pdf,.docx,.csv,.xls,.xlsx" required>
+                            </div>
+                            <div class="col-md-4 d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-upload"></i> Upload
+                                </button>
+                            </div>
+                        </form>
+                        <small class="text-muted">Supported formats: TXT, PDF, DOCX, CSV, XLS, XLSX. Maximum file size: 16MB.</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Document Listing -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <i class="bi bi-folder-fill"></i> Your Documents
+                    </div>
+                    <div class="card-body">
+                        {% if documents %}
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Filename</th>
+                                            <th scope="col">Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for document in documents %}
+                                            <tr>
+                                                <td>{{ document.name }}</td>
+                                                <td>
+                                                    <a href="{{ url_for('get_file', filename=document.name) }}" class="btn btn-sm btn-outline-primary">
+                                                        <i class="bi bi-download"></i> Load Content
+                                                    </a>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No documents found in the 'documents/' folder. Please upload a file to get started.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Interface -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <i class="bi bi-chat-dots-fill"></i> Ask your smartest PHII ChatBot a Question
+                    </div>
+                    <div class="card-body">
+                        <form action="{{ url_for('chat') }}" method="post" class="row g-3">
+                            <div class="col-md-10">
+                                <input type="text" name="question" class="form-control" placeholder="Enter your question here..." required>
+                            </div>
+                            <div class="col-md-2 d-grid">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-send"></i> Ask
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chat Response Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <i class="bi bi-chat-dots-fill"></i> Chat Response
+                    </div>
+                    <div class="card-body">
+                        {% if response %}
+                            <div id="response-content" class="mb-3">
+                                {{ response|safe }}
+                            </div>
+                            <div class="d-flex gap-3">
+                                <!-- Download Response Button -->
+                                <a href="{{ url_for('download_response') }}" class="btn btn-outline-primary">
+                                    <i class="bi bi-download"></i> Download Response
+                                </a>
+                                
+                                <!-- Copy Response Button -->
+                                <button onclick="copyResponseToClipboard()" class="btn btn-outline-secondary">
+                                    <i class="bi bi-clipboard"></i> Copy Response
+                                </button>
+                            </div>
+                        {% else %}
+                            <p class="text-muted">No response available. Please ask a question to get started.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <i class="bi bi-bar-chart-fill"></i> Generated Chart
+                    </div>
+                    <div class="card-body">
+                        {% if chart_path %}
+                            <img src="{{ url_for('static', filename='images/chart.png') }}" class="img-fluid mb-3" alt="Generated Chart">
+                            <a href="{{ url_for('static', filename='images/chart.png') }}" class="btn btn-outline-primary" download>
+                                <i class="bi bi-download"></i> Download Chart
+                            </a>
+                        {% else %}
+                            <p class="text-muted">No chart generated. Please upload data and ask a question to generate a chart.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Report Section -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <i class="bi bi-file-earmark-text-fill"></i> Generated Report
+                    </div>
+                    <div class="card-body">
+                        {% if report_path %}
+                            <a href="{{ url_for('static', filename='report.txt') }}" class="btn btn-outline-primary" download>
+                                <i class="bi bi-download"></i> Download Report
+                            </a>
+                        {% else %}
+                            <p class="text-muted">No report available. Please upload data and ask a question to generate a report.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- JavaScript for Copying Response to Clipboard -->
+        <script>
+            function copyResponseToClipboard() {
+                const responseContent = document.getElementById('response-content').innerText;
+                navigator.clipboard.writeText(responseContent).then(function() {
+                    alert('Response copied to clipboard!');
+                }, function(err) {
+                    alert('Failed to copy response: ', err);
+                });
+            }
+        </script>
+
+        <!-- Response History -->
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm">
+                    <div class="card-header bg-secondary text-white">
+                        <i class="bi bi-clock-history"></i> Chat History
+                    </div>
+                    <div class="card-body">
+                        {% if history %}
+                            <ul class="list-group">
+                                {% for item in history %}
+                                    <li class="list-group-item">
+                                        <strong>Q:</strong> {{ item.question }}<br>
+                                        <strong>A:</strong> {{ item.response }}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">No chat history yet. Ask a question to see the response here.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <p>&copy; {{ current_year }} Public Health Informatics Institute. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS via CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
